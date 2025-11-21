@@ -1,13 +1,10 @@
 from fastapi import HTTPException, Depends, Header, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional, Dict, Any, Tuple, Annotated, AsyncGenerator    
-import uuid
-from datetime import datetime
+from typing import Tuple, Annotated, AsyncGenerator    
 from sqlalchemy import select       
 from app.core.database import get_db
 from app.core.security import verify_token, get_token_remaining_time
 from app.models.user import User, UserRole
-from app.core.config import settings
 
 async def get_token_from_header(
     authorization: Annotated[str | None, Header()] = None,
@@ -41,7 +38,7 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     async with get_db() as session:
         yield session
 
-async def get_token_remaining_time(
+async def _get_token_remaining_time(
     token: Annotated[str, Depends(get_token_from_header)],
 ) -> int:
     """Get the remaining time for the token."""
@@ -49,7 +46,7 @@ async def get_token_remaining_time(
 
 async def get_current_user_from_token(
     token: str = Depends(get_token_from_header),
-    db: AsyncSession = Depends(get_db_session),
+    db: AsyncSession = Depends(get_db),
 ) -> User:
     """Get the current user from the token."""
     payload = verify_token(token)

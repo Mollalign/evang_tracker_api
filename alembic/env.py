@@ -3,7 +3,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 from app.core.database import Base
 from app.core.config import settings
-from app.models import user, outreachReport, person  # noqa: F401
+from app.models import user, outreachReport, person, password_reset  # noqa: F401
 
 # Alembic Config
 config = context.config
