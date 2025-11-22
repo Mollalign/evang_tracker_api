@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -16,6 +16,7 @@ from app.schemas.user_schema import (
     ForgotPasswordRequest
 )
 from app.services.auth_service import AuthService
+from app.models.user import UserRole
 
 
 router = APIRouter(tags=["auth"])
@@ -31,6 +32,12 @@ async def register_user(
   request: UserCreateSchema,
   service: AuthService = Depends(get_auth_service)
 ):
+   # Only allow evangelist role registration
+   if request.role == UserRole.admin:
+       raise HTTPException(
+           status_code=status.HTTP_403_FORBIDDEN,
+           detail="Admin accounts cannot be created through registration. Please contact system administrator."
+       )
    return await service.register_user(request)
 
 

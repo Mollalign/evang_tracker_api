@@ -50,7 +50,7 @@ class AuthService:
             full_name=payload.full_name,
             email=payload.email,
             phone_number=payload.phone_number,
-            role=payload.role,
+            role=UserRole.evangelist,
             password_hash=get_password_hash(payload.password),
             is_active=payload.is_active,
         )

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, model_validator
 from datetime import datetime, timezone
 from uuid import UUID
 from app.models.user import UserRole
@@ -7,9 +7,15 @@ class UserCreateSchema(BaseModel):
     full_name: str
     email: EmailStr
     phone_number: str | None = None
-    role: UserRole = UserRole.evangelist
+    role: UserRole = Field(default=UserRole.evangelist, description="Only evangelist role allowed for registration")
     password: str
     is_active: bool = True
+    
+    @model_validator(mode='after')
+    def validate_role(self):
+        if self.role == UserRole.admin:
+            raise ValueError("Admin accounts cannot be created through registration")
+        return self
 
 class UserSchema(BaseModel):
     id: UUID
