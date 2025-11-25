@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from ..dependencies import get_current_user
+from app.models.user import User
 
 from app.core.database import get_db
 from app.schemas.user_schema import (
@@ -49,7 +51,7 @@ async def login(
 ):
     user = await service.authenticate_user(request)
     tokens = service.issue_token_pair(str(user.id))
-    return LoginResponse(**tokens, user_id=str(user.id))
+    return LoginResponse(**tokens, user=user)
 
 
 # refresh token
@@ -80,3 +82,19 @@ async def reset_password(
 ):
     await service.reset_password_service(request)
     return {"message": "Password reset successful"}
+
+
+@router.get("/me", response_model=UserSchema)
+async def current_user(
+   user: User = Depends(get_current_user)
+):
+    return UserSchema(
+        id=user.id,
+        full_name=user.full_name,
+        email=user.email,
+        phone_number=user.phone_number,
+        role=user.role,
+        is_active=user.is_active,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+    )
