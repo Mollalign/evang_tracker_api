@@ -109,7 +109,7 @@ class AuthService:
         await self.db.merge(token)
         await self.db.commit()
 
-        reset_link = f"https://yourfrontend.com/reset-password?token={token.token}"
+        reset_link = f"http://localhost:3000/reset-password?token={token.token}"
 
         html = f"""
             <h2>Password Reset Request</h2>
