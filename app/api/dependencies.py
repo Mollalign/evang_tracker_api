@@ -121,8 +121,8 @@ async def require_any_authenticated_user(current_user: User = Depends(get_curren
 # verify report ownership
 async def verify_report_ownership(
    report_id: UUID,
-   current_user: User,
-   db: AsyncSession     
+   current_user: User = Depends(get_current_user),
+   db: AsyncSession = Depends(get_db)     
 ) -> OutreachReport:
     """
         Verify user owns the report or is admin.

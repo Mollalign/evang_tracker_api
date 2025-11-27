@@ -1,12 +1,12 @@
-from pydantic import BaseModel, Field
-import datetime
+from pydantic import BaseModel, Field, ConfigDict
+from datetime import date, datetime
 from uuid import UUID
 from typing import Optional
 
 class ReportBase(BaseModel):
     outreach_name: str
     location: str
-    date: datetime.date
+    date: date
     heard_count: int = Field(default=0, ge=0)
     interested_count: int = Field(default=0, ge=0)
     accepted_count: int = Field(default=0, ge=0)
@@ -19,7 +19,7 @@ class ReportCreate(ReportBase):
 class ReportUpdate(BaseModel):
     outreach_name: Optional[str] = None
     location: Optional[str] = None
-    date: Optional[datetime.date] = None
+    date: Optional[date] = None
     heard_count: Optional[int] = Field(default=None, ge=0)
     interested_count: Optional[int] = Field(default=None, ge=0)
     accepted_count: Optional[int] = Field(default=None, ge=0)
@@ -29,8 +29,7 @@ class ReportUpdate(BaseModel):
 class ReportResponse(ReportBase):
     id: UUID
     evangelist_id: UUID
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    created_at: datetime
+    updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
