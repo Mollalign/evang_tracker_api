@@ -78,4 +78,12 @@ class UserRoleUpdateRequest(BaseModel):
     role: UserRole    
 
 class UserStatusUpdateRequest(BaseModel):
-    is_active: bool    
+    is_active: bool
+
+class AdminUserCreateSchema(BaseModel):
+    full_name: str
+    email: EmailStr
+    phone_number: str | None = None
+    role: UserRole = UserRole.admin
+    password: str
+    is_active: bool = True

@@ -5,6 +5,8 @@ from sqlalchemy import select
 from app.core.database import get_db
 from app.core.security import verify_token, get_token_remaining_time
 from app.models.user import User, UserRole
+from app.models.outreachReport import OutreachReport
+from uuid import UUID
 
 async def get_token_from_header(
     authorization: Annotated[str | None, Header()] = None,
@@ -101,3 +103,52 @@ async def require_admin(current_user: User = Depends(get_current_user)) -> User:
             detail="Admin privileges required",
         )
     return current_user
+
+async def require_evangelist(current_user: User = Depends(get_current_user)) -> User:
+    """Require user to be an evangelist"""
+    if current_user.role != UserRole.evangelist:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Evangelist privileges required",
+        )
+    return current_user
+
+async def require_any_authenticated_user(current_user: User = Depends(get_current_user)) -> User:
+    """Just verify user is authenticated (already done by get_current_user)"""
+    return current_user
+
+
+# verify report ownership
+async def verify_report_ownership(
+   report_id: UUID,
+   current_user: User,
+   db: AsyncSession     
+) -> OutreachReport:
+    """
+        Verify user owns the report or is admin.
+        - Admins can access any report
+        - Evangelists can only access their own reports
+    """
+    
+    result = await db.execute(
+        select(OutreachReport).where(OutreachReport.id == report_id)
+    )
+    report = result.scalar_one_or_none()
+
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    # Admins can access any report
+    if current_user.role == UserRole.admin:
+        return report
+    
+    # Evangelists can only access their own reports
+    if report.evangelist_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only access your own reports"
+        )
+    
+    return report
+
+     

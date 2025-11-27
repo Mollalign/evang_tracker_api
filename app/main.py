@@ -10,6 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import DatabaseManager, AsyncSessionLocal, invalidate_connection_pool
 from app.api.endpoints.auth import router as auth_router
+from app.api.endpoints.reports import router as reports_router
+from app.api.endpoints.admin import router as admin_router
+from app.api.endpoints.person import router as people_router
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +94,9 @@ async def invalidate_pool():
 
 # all routes 
 app.include_router(auth_router, prefix="/api/auth")
+app.include_router(reports_router, prefix="/api/reports", tags=["reports"])
+app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
+app.include_router(people_router, prefix="/api/people", tags=["people"])
 
 
 
